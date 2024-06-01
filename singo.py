@@ -24,7 +24,7 @@ class CorpSingo:
 
         singo_driver = webdriver.Chrome()
         singo_driver.get("https://www.wetax.go.kr/main/?cmd=LPEPBN3R0&TAX_SEQ=" + self.htx_reg_no)
-        time.sleep(0.8)
+        time.sleep(1)
 
         ########## 1page
         # 신고인 구분
@@ -48,7 +48,7 @@ class CorpSingo:
         button = singo_driver.find_element(By.ID, "btnOk")
         button.click()
 
-        time.sleep(0.5)
+        time.sleep(1)
 
 
         ########## 1page > 2page
@@ -87,22 +87,87 @@ class CorpSingo:
         ########## 2page > 3page > 4page > 5page
         # 다음 버튼 클릭 후, 브라우저 알림창 확인처리
         for move in range(4):
-            time.sleep(0.3)
+            time.sleep(0.5)
 
             button = singo_driver.find_element(By.ID, "btnNext")
             button.click()
 
-            time.sleep(0.2)
+            time.sleep(0.5)
 
             alert = singo_driver.switch_to.alert
             alert.accept()
+            
         
+
+        #제출 버튼 클릭
+        time.sleep(1)
+
+        try:
+            button = singo_driver.find_element(By.ID, "btnCmptn")
+        except Exception as e:
+            is_next = input()
+            print(e)
+            return
+        
+        button.click()
+
+        time.sleep(0.5)
+        
+        alert = singo_driver.switch_to.alert
+        alert.accept()
+
+
+        time.sleep(3)
+
+
+        #전자납부번호
+        try:
+            payNo = singo_driver.find_element(By.ID, 'elpn').text
+        except Exception as e:
+            print(e)
+            is_check = input()
+        
+        print("=====================")
+        print("전자납부번호: ", payNo)
+        print("=====================")
+
+        #납부계좌 토글 클릭
+        toggle_button = singo_driver.find_element(By.CLASS_NAME, 'toggle')
+        time.sleep(0.5)
+        singo_driver.execute_script("arguments[0].click();", toggle_button)
+        time.sleep(0.5)
+
+        # 납부계좌 테이블 행 추출
+        rows = singo_driver.find_elements(By.CSS_SELECTOR, 'table[name="tblVrActnoList"] tbody tr')
+
+        # 납부계좌 목록 문자열로 생성
+        # 단, 전국공통(지방세입) 제외
+        acct_list_string = ''
+        for i in range(0, len(rows)):
+
+            if i == 4:
+                break
+
+            row = rows[i]
+            bank = row.find_elements(By.CSS_SELECTOR, 'td')[0].text
+
+            if bank == '전국공통(지방세입)':
+                continue
+        
+            account = row.find_elements(By.CSS_SELECTOR, 'td')[1].text
+            
+            acct_list_string += bank + " " + account + "\n"
+
+        print("가상계좌목록:")
+        print(acct_list_string)
+
 
         # 크롬 창 꺼지기 방지 
         is_ok = input()
 
         if is_ok == 1:
             singo_driver.quit()
+        
 
         
 

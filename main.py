@@ -46,7 +46,12 @@ while (row_num <= end_num):
          "UUID":            target_info_tp[0].value.replace(" ", "")
     }
 
-    target = singo.CorpSingo(target_info_dic)
+    try:
+        target = singo.CorpSingo(target_info_dic)
+    except Exception as e:
+        print(e)
+        is_check = input()
+    
     print("\n=========  row_num :: ", row_num, " ============\n")
     print("HT_TIN: "            , target.ht_tin)
     print("이름: "              , target.user_nm)
